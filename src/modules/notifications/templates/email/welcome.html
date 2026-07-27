@@ -1,0 +1,70 @@
+<!-- src/modules/notifications/templates/email/welcome.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to AgriConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #2E7D32;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .button {
+            display: inline-block;
+            background: #2E7D32;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌾 AgriConnect</h1>
+        <p>Bringing Agricultural Professionals to Farmers Instantly</p>
+    </div>
+    <div class="content">
+        <h2>Welcome to AgriConnect, {{name}}!</h2>
+        <p>We're excited to have you join our community of farmers and agricultural professionals.</p>
+        <p>With AgriConnect, you can:</p>
+        <ul>
+            <li>Connect with verified agricultural professionals</li>
+            <li>Request services instantly with real-time tracking</li>
+            <li>Manage your farms, livestock, and crops</li>
+            <li>Access AI-powered disease detection</li>
+            <li>Join cooperatives and community groups</li>
+        </ul>
+        <p>Get started by completing your profile and exploring the platform.</p>
+        <a href="{{getStartedUrl}}" class="button">Get Started</a>
+    </div>
+    <div class="footer">
+        <p>© 2024 AgriConnect. All rights reserved.</p>
+        <p>If you didn't create this account, please ignore this email.</p>
+    </div>
+</body>
+</html>

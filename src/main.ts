@@ -1,3 +1,4 @@
+// src/main.ts - Updated with Swagger
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -5,6 +6,11 @@ import * as compression from 'compression';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { ExceptionInterceptor } from './common/interceptors/exception.interceptor';
+import { LoggerService } from './shared/services/logger.service';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -18,7 +24,7 @@ async function bootstrap() {
     credentials: true,
   }));
 
-  // Global validation pipe
+  // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -28,6 +34,17 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
     }),
+  );
+
+  // Global filters
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global interceptors
+  const loggerService = app.get(LoggerService);
+  app.useGlobalInterceptors(
+    new TransformInterceptor(),
+    new LoggingInterceptor(loggerService),
+    new ExceptionInterceptor(loggerService),
   );
 
   // API prefix
@@ -54,6 +71,8 @@ async function bootstrap() {
     .addTag('community')
     .addTag('analytics')
     .addTag('admin')
+    .addServer('http://localhost:3000', 'Development')
+    .addServer('https://api.agriconnect.com', 'Production')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

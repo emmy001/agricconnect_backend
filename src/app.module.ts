@@ -1,11 +1,17 @@
-// src/app.module.ts
-import { Module } from '@nestjs/common';
+// src/app.module.ts - Updated with Middleware
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bull';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+
+import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import configuration from './config/configuration';
+import { validationSchema } from './config/validation';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -25,57 +31,62 @@ import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
-    // Configuration
     ConfigModule.forRoot({
+      load: [configuration],
+      validationSchema,
       isGlobal: true,
       envFilePath: ['.env', '.env.local'],
     }),
     
-    // Database
-    TypeOrmModule.forRootAsync({
+    CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST', 'localhost'),
-        port: configService.get('DATABASE_PORT', 5432),
-        username: configService.get('DATABASE_USER', 'agriconnect'),
-        password: configService.get('DATABASE_PASSWORD', 'agriconnect2024'),
-        database: configService.get('DATABASE_NAME', 'agriconnect'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') !== 'production',
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        migrationsRun: true,
-        logging: configService.get('NODE_ENV') === 'development',
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('redis.host'),
+        port: configService.get('redis.port'),
+        ttl: 3600,
       }),
       inject: [ConfigService],
     }),
     
-    // Redis Queue
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.database'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: process.env.NODE_ENV !== 'production',
+        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        migrationsRun: true,
+        logging: process.env.NODE_ENV === 'development',
+      }),
+      inject: [ConfigService],
+    }),
+    
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         redis: {
-          host: configService.get('REDIS_HOST', 'localhost'),
-          port: configService.get('REDIS_PORT', 6379),
+          host: configService.get('redis.host'),
+          port: configService.get('redis.port'),
         },
       }),
       inject: [ConfigService],
     }),
     
-    // Rate Limiting
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: () => ({
         ttl: 60,
         limit: 100,
       }),
-      inject: [ConfigService],
     }),
     
-    // Scheduling
     ScheduleModule.forRoot(),
-    
-    // Event Emitter
     EventEmitterModule.forRoot({
       wildcard: false,
       delimiter: '.',
@@ -86,7 +97,6 @@ import { AdminModule } from './modules/admin/admin.module';
       ignoreErrors: false,
     }),
     
-    // Feature Modules
     AuthModule,
     UsersModule,
     ProfessionalsModule,
@@ -104,4 +114,10 @@ import { AdminModule } from './modules/admin/admin.module';
     AdminModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
