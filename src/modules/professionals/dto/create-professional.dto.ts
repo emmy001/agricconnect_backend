@@ -1,3 +1,4 @@
+// src/modules/professionals/dto/create-professional.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsArray, IsBoolean, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
