@@ -21,7 +21,12 @@
     "migration:generate": "typeorm migration:generate -d dist/database/data-source.js",
     "migration:run": "typeorm migration:run -d dist/database/data-source.js",
     "migration:revert": "typeorm migration:revert -d dist/database/data-source.js",
-    "seed": "ts-node src/database/seeds/seed.ts"
+    "seed": "ts-node src/database/seeds/seed.ts",
+    "docker:build": "docker build -t agriconnect-api .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

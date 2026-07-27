@@ -1,3 +1,4 @@
+// src/modules/chat/entities/chat-message.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { ChatRoom } from './chat-room.entity';
 import { User } from '../../users/entities/user.entity';
