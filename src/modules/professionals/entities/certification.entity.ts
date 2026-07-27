@@ -31,6 +31,9 @@ export class Certification {
   @Column({ default: false })
   isVerified: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

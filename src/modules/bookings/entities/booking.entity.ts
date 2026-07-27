@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Professional } from '../../professionals/entities/professional.entity';
 
@@ -43,11 +43,13 @@ export enum ServiceCategory {
 }
 
 @Entity('bookings')
+@Index(['farmerId', 'professionalId', 'status'])
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
+  @Index()
   farmerId: string;
 
   @ManyToOne(() => User)
@@ -55,6 +57,7 @@ export class Booking {
   farmer: User;
 
   @Column({ nullable: true })
+  @Index()
   professionalId: string;
 
   @ManyToOne(() => Professional)
@@ -75,9 +78,11 @@ export class Booking {
     enum: BookingStatus,
     default: BookingStatus.PENDING,
   })
+  @Index()
   status: BookingStatus;
 
   @CreateDateColumn()
+  @Index()
   requestedAt: Date;
 
   @Column({ nullable: true })
