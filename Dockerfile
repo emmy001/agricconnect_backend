@@ -5,16 +5,15 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY yarn.lock ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN yarn build
+RUN npm run build
 
 # Production image
 FROM node:20-alpine
@@ -23,10 +22,9 @@ WORKDIR /app
 
 # Copy package files for production
 COPY package*.json ./
-COPY yarn.lock ./
 
 # Install production dependencies only
-RUN yarn install --frozen-lockfile --production
+RUN npm ci --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist

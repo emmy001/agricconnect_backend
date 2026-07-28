@@ -36,16 +36,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: yarn
+          cache: npm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run Linter
-        run: yarn lint
+        run: npm run lint
 
       - name: Run Unit Tests
-        run: yarn test:cov
+        run: npm run test:cov
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v4
