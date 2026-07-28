@@ -1,4 +1,5 @@
 # .github/workflows/deploy.yml
+
 name: Deploy AgriConnect Backend
 
 on:
@@ -6,148 +7,205 @@ on:
     branches:
       - main
       - develop
+
   pull_request:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 env:
-  DOCKER_REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # Test Job
+  ##########################################################################
+  # TESTS
+  ##########################################################################
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: 20
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run linting
+      - name: Run Linter
         run: yarn lint
 
-      - name: Run unit tests
+      - name: Run Unit Tests
         run: yarn test:cov
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
         with:
           directory: ./coverage
           fail_ci_if_error: false
 
-  # Build Job
+  ##########################################################################
+  # BUILD & PUSH TO GHCR
+  ##########################################################################
   build:
-    name: Build Docker Image
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: Extract Docker Metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          images: ghcr.io/${{ github.repository }}
+
           tags: |
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
         with:
           context: .
+          file: ./Dockerfile
+
           push: ${{ github.event_name != 'pull_request' }}
+
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Deploy to Production
-  deploy-prod:
-    name: Deploy to Production
+  ##########################################################################
+  # PRODUCTION DEPLOYMENT
+  ##########################################################################
+  deploy-production:
+    name: Deploy Production
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.7
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          script: |
-            cd /opt/agriconnect
-            docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker-compose down
-            docker-compose up -d
-            docker system prune -f
 
-  # Deploy to Staging
+          script: |
+
+            set -e
+
+            cd /opt/agriconnect
+
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u "${{ secrets.GHCR_USERNAME }}" \
+              --password-stdin
+
+            docker compose pull
+
+            docker compose up -d \
+              --force-recreate \
+              --remove-orphans
+
+            docker image prune -af
+
+  ##########################################################################
+  # STAGING DEPLOYMENT
+  ##########################################################################
   deploy-staging:
-    name: Deploy to Staging
+    name: Deploy Staging
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/develop'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Deploy to staging server
-        uses: appleboy/ssh-action@v0.1.7
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT }}
-          script: |
-            cd /opt/agriconnect-staging
-            docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:develop
-            docker-compose down
-            docker-compose up -d
-            docker system prune -f
 
-  # Notifications
-  notify-success:
-    name: Notify Success
+          script: |
+
+            set -e
+
+            cd /opt/agriconnect-staging
+
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u "${{ secrets.GHCR_USERNAME }}" \
+              --password-stdin
+
+            docker compose pull
+
+            docker compose up -d \
+              --force-recreate \
+              --remove-orphans
+
+            docker image prune -af
+
+  ##########################################################################
+  # SLACK NOTIFICATION
+  ##########################################################################
+  notify:
+    name: Deployment Notification
     runs-on: ubuntu-latest
-    needs: [deploy-prod, deploy-staging]
+
+    needs:
+      - deploy-production
+      - deploy-staging
+
     if: always()
-    
+
     steps:
-      - name: Send Slack notification
-        uses: act10ns/slack@v1
+      - name: Send Slack Notification
+        uses: act10ns/slack@v2
+
         with:
-          status: ${{ needs.deploy-prod.result }}
-          channel: '#deployments'
-          message: 'AgriConnect deployment ${{ needs.deploy-prod.result }}!'
+          status: ${{ job.status }}
+          channel: "#deployments"
+
+          message: |
+            🚀 AgriConnect Deployment
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+
+            Status: ${{ job.status }}
+
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
