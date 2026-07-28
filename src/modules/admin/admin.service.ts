@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { User, UserStatus } from '../users/entities/user.entity';
 import { Professional, ProfessionalStatus } from '../professionals/entities/professional.entity';
 import { Booking } from '../bookings/entities/booking.entity';
 import { Payment, PaymentStatus } from '../payments/entities/payment.entity';
@@ -21,7 +21,7 @@ export class AdminService {
 
   async getDashboardStats(): Promise<any> {
     const totalUsers = await this.userRepository.count();
-    const activeUsers = await this.userRepository.count({ where: { status: 'active' } });
+    const activeUsers = await this.userRepository.count({ where: { status: UserStatus.ACTIVE } });
     const totalProfessionals = await this.professionalRepository.count();
     const pendingVerifications = await this.professionalRepository.count({
       where: { verificationStatus: ProfessionalStatus.PENDING },

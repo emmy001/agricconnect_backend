@@ -9,6 +9,7 @@ import { TransferDto } from './dto/transfer.dto';
 import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import * as crypto from 'crypto';
+import { NotificationPriority, NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class WalletService {
@@ -209,8 +210,8 @@ export class WalletService {
       userId: recipientId,
       title: 'Money Received',
       body: `You received KES ${amount} from a user`,
-      type: 'payment',
-      priority: 'high',
+      type: NotificationType.TRANSACTION,
+      priority: NotificationPriority.HIGH,
       data: { amount, senderId: userId },
     });
 

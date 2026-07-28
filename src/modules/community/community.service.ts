@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 import { QnA } from './entities/qna.entity';
@@ -30,11 +30,12 @@ export class CommunityService {
   ) {}
 
   // Post Methods
-  async createPost(userId: string, data: any): Promise<Post> {
-    const post = this.postRepository.create({
+  async createPost(userId: string, data: Partial<Post>): Promise<Post> {
+    const payload: DeepPartial<Post> = {
       authorId: userId,
       ...data,
-    });
+    };
+    const post = this.postRepository.create(payload);
     return this.postRepository.save(post);
   }
 
@@ -49,7 +50,7 @@ export class CommunityService {
     }
 
     if (search) {
-      queryBuilder.andWhere('post.title ILIKE :search OR post.content ILIKE :search', {
+      queryBuilder.andWhere('(post.title ILIKE :search OR post.content ILIKE :search)', {
         search: `%${search}%`,
       });
     }
@@ -74,7 +75,7 @@ export class CommunityService {
     return post;
   }
 
-  async updatePost(id: string, data: any): Promise<Post> {
+  async updatePost(id: string, data: Partial<Post>): Promise<Post> {
     const post = await this.getPost(id);
     Object.assign(post, data);
     return this.postRepository.save(post);
@@ -119,11 +120,12 @@ export class CommunityService {
   }
 
   // Q&A Methods
-  async askQuestion(userId: string, data: any): Promise<QnA> {
-    const qna = this.qnaRepository.create({
+  async askQuestion(userId: string, data: Partial<QnA>): Promise<QnA> {
+    const payload: DeepPartial<QnA> = {
       authorId: userId,
       ...data,
-    });
+    };
+    const qna = this.qnaRepository.create(payload);
     return this.qnaRepository.save(qna);
   }
 
@@ -165,10 +167,10 @@ export class CommunityService {
       content,
     });
     const saved = await this.answerRepository.save(answer);
-    
+
     qna.answersCount += 1;
     await this.qnaRepository.save(qna);
-    
+
     return saved;
   }
 

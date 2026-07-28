@@ -11,6 +11,7 @@ import { Equipment } from './entities/equipment.entity';
 import { EquipmentRental, RentalStatus } from './entities/equipment-rental.entity';
 import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationPriority, NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class MarketplaceService {
@@ -233,8 +234,8 @@ export class MarketplaceService {
       userId,
       title: 'Order Confirmed',
       body: `Your order #${savedOrder.id.slice(0, 8)} has been confirmed`,
-      type: 'system',
-      priority: 'high',
+      type: NotificationType.PAYMENT,
+      priority: NotificationPriority.HIGH,
       data: { orderId: savedOrder.id },
     });
 

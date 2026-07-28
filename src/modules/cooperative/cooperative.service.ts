@@ -1,12 +1,43 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, In, Repository } from 'typeorm';
 import { Cooperative } from './entities/cooperative.entity';
-import { CooperativeMember } from './entities/cooperative-member.entity';
+import { CooperativeMember, MemberRole } from './entities/cooperative-member.entity';
 import { CooperativeService as CooperativeServiceEntity } from './entities/cooperative-service.entity';
 import { GroupBooking, GroupBookingStatus } from './entities/group-booking.entity';
 import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
+
+interface CreateCooperativeData {
+  name: string;
+  description: string;
+  logo?: string;
+  category: string;
+  location: string;
+  discount?: number;
+  settings?: {
+    requiresApproval: boolean;
+    maxMembers: number;
+    subscriptionFee: number;
+  };
+  metadata?: Record<string, any>;
+}
+
+interface AddServiceData {
+  name: string;
+  description?: string;
+  price: number;
+  discount: number;
+  icon?: string;
+  isActive?: boolean;
+  metadata?: Record<string, any>;
+}
+
+interface CreateGroupBookingData {
+  serviceIds: string[];
+  memberCount?: number;
+  scheduledDate: Date;
+}
 
 @Injectable()
 export class CooperativeService {
@@ -23,21 +54,26 @@ export class CooperativeService {
     private notificationsService: NotificationsService,
   ) {}
 
-  async create(userId: string, data: any): Promise<Cooperative> {
-    const cooperative = this.cooperativeRepository.create({
+  async create(userId: string, data: CreateCooperativeData): Promise<Cooperative> {
+    const payload: DeepPartial<Cooperative> = {
       ...data,
       totalSavings: 0,
-    });
-
+    };
+    const cooperative = this.cooperativeRepository.create(payload);
     const saved = await this.cooperativeRepository.save(cooperative);
 
     // Add creator as chairman
-    const member = this.memberRepository.create({
+    // NOTE: 'chairman' is a placeholder — swap for the real MemberRole enum
+    // member (e.g. MemberRole.CHAIRMAN) once you confirm its exact name in
+    // cooperative-member.entity.ts. A bare string literal won't satisfy the
+    // MemberRole type the entity declares for `role`.
+    const memberPayload: DeepPartial<CooperativeMember> = {
       cooperativeId: saved.id,
       userId,
-      role: 'chairman',
+      role: MemberRole.CHAIRMAN,
       joinedAt: new Date(),
-    });
+    };
+    const member = this.memberRepository.create(memberPayload);
     await this.memberRepository.save(member);
 
     return saved;
@@ -71,7 +107,7 @@ export class CooperativeService {
     return cooperative;
   }
 
-  async update(id: string, data: any): Promise<Cooperative> {
+  async update(id: string, data: Partial<Cooperative>): Promise<Cooperative> {
     const cooperative = await this.findOne(id);
     Object.assign(cooperative, data);
     return this.cooperativeRepository.save(cooperative);
@@ -85,7 +121,7 @@ export class CooperativeService {
 
   async join(userId: string, cooperativeId: string): Promise<{ success: boolean }> {
     const cooperative = await this.findOne(cooperativeId);
-    
+
     const existing = await this.memberRepository.findOne({
       where: { cooperativeId, userId },
     });
@@ -131,12 +167,13 @@ export class CooperativeService {
     });
   }
 
-  async addService(cooperativeId: string, data: any): Promise<CooperativeServiceEntity> {
+  async addService(cooperativeId: string, data: AddServiceData): Promise<CooperativeServiceEntity> {
     await this.findOne(cooperativeId);
-    const service = this.serviceRepository.create({
+    const payload: DeepPartial<CooperativeServiceEntity> = {
       cooperativeId,
       ...data,
-    });
+    };
+    const service = this.serviceRepository.create(payload);
     return this.serviceRepository.save(service);
   }
 
@@ -147,7 +184,7 @@ export class CooperativeService {
     });
   }
 
-  async createGroupBooking(userId: string, cooperativeId: string, data: any): Promise<GroupBooking> {
+  async createGroupBooking(userId: string, cooperativeId: string, data: CreateGroupBookingData): Promise<GroupBooking> {
     const cooperative = await this.findOne(cooperativeId);
     const member = await this.memberRepository.findOne({
       where: { cooperativeId, userId },
@@ -157,16 +194,18 @@ export class CooperativeService {
     }
 
     // Calculate totals
+    // TypeORM's `find()` uses its own FindOperator helpers (In, Like, etc.)
+    // rather than Mongo-style query objects like `{ $in: [...] }`.
     const services = await this.serviceRepository.find({
-      where: { cooperativeId, id: { $in: data.serviceIds } },
+      where: { cooperativeId, id: In(data.serviceIds) },
     });
 
     let totalAmount = 0;
     for (const service of services) {
-      totalAmount += service.price;
+      totalAmount += Number(service.price);
     }
 
-    const discountAmount = totalAmount * (cooperative.discount / 100);
+    const discountAmount = totalAmount * (Number(cooperative.discount) / 100);
     const finalAmount = totalAmount - discountAmount;
 
     const booking = this.bookingRepository.create({
@@ -202,7 +241,7 @@ export class CooperativeService {
     }
 
     // Add to cooperative savings
-    cooperative.totalSavings += amount;
+    cooperative.totalSavings = Number(cooperative.totalSavings) + amount;
     await this.cooperativeRepository.save(cooperative);
 
     // Update member contributions

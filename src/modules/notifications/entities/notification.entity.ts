@@ -6,6 +6,7 @@ export enum NotificationType {
   MESSAGE = 'message',
   PAYMENT = 'payment',
   PROMOTION = 'promotion',
+  TRANSACTION = 'transaction',
   WEATHER = 'weather',
   DISEASE = 'disease',
   SYSTEM = 'system',

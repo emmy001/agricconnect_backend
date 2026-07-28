@@ -1,7 +1,7 @@
 // src/modules/users/repositories/user.repository.ts
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { User, UserRole, UserStatus } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -18,15 +18,15 @@ export class UserRepository extends Repository<User> {
   }
 
   async findActiveUsers(): Promise<User[]> {
-    return this.find({ where: { status: 'active' } });
+    return this.find({ where: { status: UserStatus.ACTIVE } });
   }
 
   async findFarmers(): Promise<User[]> {
-    return this.find({ where: { role: 'farmer' } });
+    return this.find({ where: { role: UserRole.FARMER } });
   }
 
   async findProfessionals(): Promise<User[]> {
-    return this.find({ where: { role: 'professional' } });
+    return this.find({ where: { role: UserRole.PROFESSIONAL } });
   }
 
   async updateLastLogin(id: string): Promise<void> {
@@ -38,6 +38,6 @@ export class UserRepository extends Repository<User> {
   }
 
   async getActiveUsers(): Promise<number> {
-    return this.count({ where: { status: 'active' } });
+    return this.count({ where: { status: UserStatus.ACTIVE } });
   }
 }

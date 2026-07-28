@@ -9,6 +9,8 @@ import {
   Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserProfile } from './user-profile.entity';
+import { Device } from './device.entity';
 
 export enum UserRole {
   FARMER = 'farmer',

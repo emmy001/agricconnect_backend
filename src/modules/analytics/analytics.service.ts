@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import { Booking } from '../bookings/entities/booking.entity';
+import { User, UserRole, UserStatus } from '../users/entities/user.entity';
+import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { Payment, PaymentStatus } from '../payments/entities/payment.entity';
 import { Farm } from '../farms/entities/farm.entity';
 
@@ -25,7 +25,6 @@ export class AnalyticsService {
       where: { farmerId: userId },
     });
 
-    const completedBookings = bookings.filter(b => b.status === 'completed');
     const totalSpent = bookings.reduce((sum, b) => sum + (b.finalPrice || b.estimatedPrice || 0), 0);
 
     // Get farm stats
@@ -73,7 +72,7 @@ export class AnalyticsService {
 
     // Calculate rating
     const avgRating = completedBookings.reduce((sum, b) => sum + (b.rating || 0), 0) / (completedBookings.length || 1);
-    
+
     // Service distribution
     const serviceDistribution = await this.getServiceDistribution(userId);
 
@@ -100,19 +99,19 @@ export class AnalyticsService {
 
   async getAdminAnalytics(params: { period?: string; startDate?: string; endDate?: string }): Promise<any> {
     const { period, startDate, endDate } = params;
-    
+
     // User stats
     const totalUsers = await this.userRepository.count();
     const activeUsers = await this.userRepository.count({
-      where: { status: 'active' },
+      where: { status: UserStatus.ACTIVE },
     });
-    
+
     // Booking stats
     const totalBookings = await this.bookingRepository.count();
     const completedBookings = await this.bookingRepository.count({
-      where: { status: 'completed' },
+      where: { status: BookingStatus.COMPLETED },
     });
-    
+
     // Revenue stats
     const payments = await this.paymentRepository.find({
       where: { status: PaymentStatus.COMPLETED },
@@ -149,9 +148,9 @@ export class AnalyticsService {
 
   async getUserAnalytics(period?: string): Promise<any> {
     // User growth by role
-    const farmers = await this.userRepository.count({ where: { role: 'farmer' } });
-    const professionals = await this.userRepository.count({ where: { role: 'professional' } });
-    const admins = await this.userRepository.count({ where: { role: 'admin' } });
+    const farmers = await this.userRepository.count({ where: { role: UserRole.FARMER } });
+    const professionals = await this.userRepository.count({ where: { role: UserRole.PROFESSIONAL } });
+    const admins = await this.userRepository.count({ where: { role: UserRole.ADMIN } });
 
     // Monthly user growth
     const userGrowth = await this.getUserGrowthData(period);
@@ -167,7 +166,7 @@ export class AnalyticsService {
 
   async getBookingAnalytics(params: { period?: string; startDate?: string; endDate?: string }): Promise<any> {
     const { period, startDate, endDate } = params;
-    
+
     // Booking status distribution
     const statusDistribution = await this.bookingRepository
       .createQueryBuilder('booking')
@@ -188,7 +187,7 @@ export class AnalyticsService {
 
   async getRevenueAnalytics(params: { period?: string; startDate?: string; endDate?: string }): Promise<any> {
     const { period, startDate, endDate } = params;
-    
+
     // Revenue by payment method
     const revenueByMethod = await this.paymentRepository
       .createQueryBuilder('payment')
@@ -220,10 +219,18 @@ export class AnalyticsService {
   async getProfessionalAnalyticsAdmin(period?: string): Promise<any> {
     // Professional performance metrics
     const professionals = await this.userRepository.find({
-      where: { role: 'professional' },
+      where: { role: UserRole.PROFESSIONAL },
     });
 
-    const totalEarnings = professionals.reduce((sum, p) => sum + (p.totalEarnings || 0), 0);
+    // `totalEarnings` isn't a field on the User entity, so we derive it
+    // by aggregating completed bookings across all professionals instead.
+    const earningsResult = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .select('SUM(COALESCE(booking.finalPrice, booking.estimatedPrice, 0))', 'total')
+      .where('booking.status = :status', { status: 'completed' })
+      .getRawOne<{ total: string | null }>();
+
+    const totalEarnings = Number(earningsResult?.total) || 0;
     const avgRating = professionals.reduce((sum, p) => sum + (p.rating || 0), 0) / (professionals.length || 1);
 
     return {
@@ -236,7 +243,7 @@ export class AnalyticsService {
   async getGrowthMetrics(period?: string): Promise<any> {
     // User growth
     const userGrowth = await this.getUserGrowthData(period);
-    
+
     // Revenue growth
     const revenueGrowth = await this.getRevenueGrowth(period);
 
@@ -256,11 +263,10 @@ export class AnalyticsService {
       where: { userId, status: PaymentStatus.COMPLETED },
     });
 
-    const monthlyData = {};
+    const monthlyData: Record<number, number> = {};
     for (const payment of payments) {
       const month = payment.createdAt.getMonth();
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month] += payment.amount;
+      monthlyData[month] = (monthlyData[month] || 0) + payment.amount;
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -275,19 +281,18 @@ export class AnalyticsService {
       where: { farmerId: userId },
     });
 
-    const usage = {};
+    const usage: Record<string, number> = {};
     for (const booking of bookings) {
       const category = booking.category;
-      if (!usage[category]) usage[category] = 0;
-      usage[category]++;
+      usage[category] = (usage[category] || 0) + 1;
     }
 
-    const total = Object.values(usage).reduce((sum: number, val: number) => sum + val, 0);
+    const total = Object.values(usage).reduce((sum, val) => sum + val, 0);
     const colors = ['#2E7D32', '#66BB6A', '#FFB300', '#42A5F5', '#AB47BC', '#EF5350'];
-    
+
     return Object.keys(usage).map((key, index) => ({
       label: key,
-      value: (usage[key] / total) * 100,
+      value: total > 0 ? (usage[key] / total) * 100 : 0,
       color: colors[index % colors.length],
     }));
   }
@@ -297,19 +302,18 @@ export class AnalyticsService {
       where: { professionalId: userId },
     });
 
-    const distribution = {};
+    const distribution: Record<string, number> = {};
     for (const booking of bookings) {
       const category = booking.category;
-      if (!distribution[category]) distribution[category] = 0;
-      distribution[category]++;
+      distribution[category] = (distribution[category] || 0) + 1;
     }
 
-    const total = Object.values(distribution).reduce((sum: number, val: number) => sum + val, 0);
+    const total = Object.values(distribution).reduce((sum, val) => sum + val, 0);
     const colors = ['#2E7D32', '#66BB6A', '#FFB300', '#42A5F5', '#AB47BC', '#EF5350'];
-    
+
     return Object.keys(distribution).map((key, index) => ({
       label: key,
-      value: (distribution[key] / total) * 100,
+      value: total > 0 ? (distribution[key] / total) * 100 : 0,
       color: colors[index % colors.length],
     }));
   }
@@ -319,11 +323,10 @@ export class AnalyticsService {
       where: { userId, status: PaymentStatus.COMPLETED },
     });
 
-    const monthlyData = {};
+    const monthlyData: Record<number, number> = {};
     for (const payment of payments) {
       const month = payment.createdAt.getMonth();
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month] += payment.amount;
+      monthlyData[month] = (monthlyData[month] || 0) + payment.amount;
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
@@ -338,11 +341,10 @@ export class AnalyticsService {
       where: { status: PaymentStatus.COMPLETED },
     });
 
-    const monthlyData = {};
+    const monthlyData: Record<number, number> = {};
     for (const payment of payments) {
       const month = payment.createdAt.getMonth();
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month] += payment.amount;
+      monthlyData[month] = (monthlyData[month] || 0) + payment.amount;
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
@@ -355,11 +357,10 @@ export class AnalyticsService {
   private async getUserGrowthData(period?: string): Promise<any[]> {
     const users = await this.userRepository.find();
 
-    const monthlyData = {};
+    const monthlyData: Record<number, number> = {};
     for (const user of users) {
       const month = user.createdAt.getMonth();
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month]++;
+      monthlyData[month] = (monthlyData[month] || 0) + 1;
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
@@ -377,22 +378,12 @@ export class AnalyticsService {
     ];
   }
 
-  private async getRecentActivities(): Promise<any[]> {
-    return [
-      { type: 'booking', title: 'New booking created', time: '2 hours ago', status: 'Completed' },
-      { type: 'payment', title: 'Payment processed', time: '5 hours ago', status: 'Completed' },
-      { type: 'user', title: 'New user registered', time: '1 day ago', status: 'Active' },
-      { type: 'verification', title: 'Professional verified', time: '2 days ago', status: 'Approved' },
-    ];
-  }
-
   private async getBookingTrends(period?: string, startDate?: string, endDate?: string): Promise<any[]> {
     const bookings = await this.bookingRepository.find();
-    const monthlyData = {};
+    const monthlyData: Record<number, number> = {};
     for (const booking of bookings) {
       const month = booking.requestedAt.getMonth();
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month]++;
+      monthlyData[month] = (monthlyData[month] || 0) + 1;
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
@@ -410,6 +401,9 @@ export class AnalyticsService {
     return this.getBookingTrends(period);
   }
 
+  // Merged: this was previously declared twice (once with no params, once
+  // with an optional userId), which is an invalid duplicate implementation
+  // in TS/JS — there's no real method overloading at runtime here.
   private async getRecentActivities(userId?: string): Promise<any[]> {
     if (userId) {
       return [
@@ -417,6 +411,11 @@ export class AnalyticsService {
         { type: 'payment', title: 'Payment made', time: '5 hours ago', status: 'Completed' },
       ];
     }
-    return this.getRecentActivities();
+    return [
+      { type: 'booking', title: 'New booking created', time: '2 hours ago', status: 'Completed' },
+      { type: 'payment', title: 'Payment processed', time: '5 hours ago', status: 'Completed' },
+      { type: 'user', title: 'New user registered', time: '1 day ago', status: 'Active' },
+      { type: 'verification', title: 'Professional verified', time: '2 days ago', status: 'Approved' },
+    ];
   }
 }
