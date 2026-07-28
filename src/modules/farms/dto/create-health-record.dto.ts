@@ -1,6 +1,6 @@
 // src/modules/farms/dto/create-health-record.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum, IsObject } from 'class-validator';
 import { HealthRecordType } from '../entities/health-record.entity';
 
 export class CreateHealthRecordDto {

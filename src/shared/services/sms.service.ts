@@ -1,14 +1,14 @@
 // src/shared/services/sms.service.ts
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as twilio from 'twilio';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class SMSService {
-  private client: twilio.Twilio;
+  private client: Twilio;
 
   constructor(private configService: ConfigService) {
-    this.client = twilio(
+    this.client = new Twilio(
       configService.get('TWILIO_ACCOUNT_SID'),
       configService.get('TWILIO_AUTH_TOKEN'),
     );

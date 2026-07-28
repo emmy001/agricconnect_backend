@@ -1,4 +1,3 @@
-// src/shared/services/cache.service.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -7,7 +6,7 @@ import { Cache } from 'cache-manager';
 export class CacheService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  async get<T>(key: string): Promise<T | null> {
+  async get<T>(key: string): Promise<T | undefined> {
     return this.cacheManager.get<T>(key);
   }
 
@@ -19,10 +18,10 @@ export class CacheService {
     await this.cacheManager.del(key);
   }
 
-  async reset(): Promise<void> {
-    await this.cacheManager.reset();
-  }
-
+  // Note: full cache reset is no longer part of the public Cache type
+  // as of cache-manager v5+. If you need to wipe everything, either
+  // track keys yourself and del() them individually, or access the
+  // underlying store directly (implementation-specific).
   async getOrSet<T>(key: string, fn: () => Promise<T>, ttl?: number): Promise<T> {
     let value = await this.get<T>(key);
     if (!value) {

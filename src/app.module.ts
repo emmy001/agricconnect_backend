@@ -28,6 +28,7 @@ import { CooperativeModule } from './modules/cooperative/cooperative.module';
 import { CommunityModule } from './modules/community/community.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { seconds } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -79,12 +80,16 @@ import { AdminModule } from './modules/admin/admin.module';
     }),
     
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: () => ({
-        ttl: 60,
+  imports: [ConfigModule],
+  useFactory: () => ({
+    throttlers: [
+      {
+        ttl: seconds(60),
         limit: 100,
-      }),
-    }),
+      },
+    ],
+  }),
+}),
     
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot({

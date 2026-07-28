@@ -1,6 +1,6 @@
 // src/modules/farms/dto/update-crop.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsEnum, IsObject } from 'class-validator';
 import { CropStage } from '../entities/crop.entity';
 
 export class UpdateCropDto {

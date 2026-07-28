@@ -1,6 +1,6 @@
 // src/modules/farms/dto/create-vaccination.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsObject } from 'class-validator';
 import { VaccinationStatus } from '../entities/vaccination.entity';
 
 export class CreateVaccinationDto {
