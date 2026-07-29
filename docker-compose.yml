@@ -6,27 +6,28 @@ services:
     image: postgres:16-alpine
     container_name: agriconnect-postgres
     environment:
-      POSTGRES_USER: agriconnect
-      POSTGRES_PASSWORD: agriconnect2024
-      POSTGRES_DB: agriconnect
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - agriconnect-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agriconnect"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    # No ports exposed to host on prod — only reachable inside agriconnect-network.
+    # Uncomment below only if you need direct external DB access (not recommended):
+    # ports:
+    #   - "5432:5432"
 
   # Redis for caching and queues
   redis:
     image: redis:7-alpine
     container_name: agriconnect-redis
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -36,27 +37,30 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
-  # Backend API
+  # Backend API — pulled from GHCR, built by CI (see .github/workflows/deploy.yml)
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME}:${IMAGE_TAG:-latest}
     container_name: agriconnect-api
     environment:
       NODE_ENV: production
       PORT: 3000
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
-      DATABASE_USER: agriconnect
-      DATABASE_PASSWORD: agriconnect2024
-      DATABASE_NAME: agriconnect
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: your-super-secret-jwt-key-change-this
-      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-this
-      ADMIN_EMAIL: admin@agriconnect.com
-      ADMIN_PASSWORD: admin123
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     ports:
       - "3000:3000"
     depends_on:
@@ -69,18 +73,20 @@ services:
     volumes:
       - uploads:/app/uploads
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # Adminer for database management (optional)
-  adminer:
-    image: adminer:latest
-    container_name: agriconnect-adminer
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - agriconnect-network
-    restart: unless-stopped
+adminer:
+  image: adminer:latest
+  container_name: agriconnect-adminer
+  ports:
+    - "127.0.0.1:8080:8080"   # only reachable from the server itself
+  networks:
+    - agriconnect-network
+  restart: unless-stopped        
 
 networks:
   agriconnect-network:
