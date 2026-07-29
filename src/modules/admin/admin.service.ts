@@ -17,7 +17,7 @@ export class AdminService {
     private bookingRepository: Repository<Booking>,
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
-  ) {}
+  ) { }
 
   async getDashboardStats(): Promise<any> {
     const totalUsers = await this.userRepository.count();
@@ -80,7 +80,7 @@ export class AdminService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async updateUserStatus(id: string, status: string): Promise<User> {
+  async updateUserStatus(id: string, status: UserStatus): Promise<User> {
     const user = await this.getUser(id);
     user.status = status;
     return this.userRepository.save(user);
@@ -160,17 +160,15 @@ export class AdminService {
     return { data, total };
   }
 
-  async processPayout(id: string, status: string): Promise<Payment> {
+  async processPayout(id: string, status: PaymentStatus): Promise<Payment> {
     const payment = await this.paymentRepository.findOne({ where: { id } });
     if (!payment) {
       throw new Error('Payment not found');
     }
-
     payment.status = status;
     payment.completedAt = new Date();
     return this.paymentRepository.save(payment);
   }
-
   async getReports(params: { type?: string; startDate?: string; endDate?: string }): Promise<any> {
     // Mock reports
     return {

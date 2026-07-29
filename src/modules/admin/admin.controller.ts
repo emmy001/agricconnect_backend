@@ -5,7 +5,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { User, UserRole } from '../users/entities/user.entity';
+import { User, UserRole, UserStatus } from '../users/entities/user.entity';
+import { PaymentStatus } from '../payments/entities/payment.entity';
 
 @ApiTags('admin')
 @Controller('admin')
@@ -41,10 +42,10 @@ export class AdminController {
   }
 
   @Put('users/:id/status')
-  @ApiOperation({ summary: 'Update user status' })
-  async updateUserStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.adminService.updateUserStatus(id, status);
-  }
+@ApiOperation({ summary: 'Update user status' })
+async updateUserStatus(@Param('id') id: string, @Body('status') status: UserStatus) {
+  return this.adminService.updateUserStatus(id, status);
+}
 
   // Professional Verification
   @Get('professionals/pending')
@@ -90,11 +91,11 @@ export class AdminController {
     return this.adminService.getPayouts({ page, limit, status });
   }
 
-  @Put('payouts/:id/process')
-  @ApiOperation({ summary: 'Process payout' })
-  async processPayout(@Param('id') id: string, @Body('status') status: string) {
-    return this.adminService.processPayout(id, status);
-  }
+ @Put('payouts/:id/process')
+@ApiOperation({ summary: 'Process payout' })
+async processPayout(@Param('id') id: string, @Body('status') status: PaymentStatus) {
+  return this.adminService.processPayout(id, status);
+}
 
   // Reports
   @Get('reports')

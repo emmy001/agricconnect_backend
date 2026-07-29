@@ -10,7 +10,7 @@ import { BookingsService } from '../bookings/bookings.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
-import * as Stripe from 'stripe';
+import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentsService {

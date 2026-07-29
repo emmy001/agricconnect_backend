@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as tf from '@tensorflow/tfjs-node';
 import * as cloudinary from 'cloudinary';
 import { Diagnosis, DiagnosisSeverity } from './entities/diagnosis.entity';
 import { Prediction } from './entities/prediction.entity';
@@ -40,7 +39,7 @@ export class AIService {
     });
 
     // Simulate AI analysis
-    // In production, this would use TensorFlow or an external AI service
+    //  Todo: In production, this would use TensorFlow or an external AI service
     const diseases = [
       'Maize Leaf Rust',
       'Fall Armyworm',
@@ -79,7 +78,7 @@ export class AIService {
 
   async predictYield(userId: string, predictYieldDto: PredictYieldDto): Promise<Prediction> {
     // Simulate yield prediction
-    // In production, this would use ML models
+    // Todo: In production, this would use ML models
     const baseYield = 3000 + Math.random() * 4000;
     const areaFactor = predictYieldDto.area / 10;
     const confidence = 0.7 + Math.random() * 0.2;
@@ -116,7 +115,7 @@ export class AIService {
   }
 
   async getWeather(userId: string, lat: number, lng: number): Promise<WeatherForecast> {
-    // In production, would call weather API
+    // Todo: In production, would call weather API
     // For now, generate mock data
     const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rainy', 'Stormy'];
     const weather = this.weatherRepository.create({
@@ -147,7 +146,7 @@ export class AIService {
   }
 
   async chat(userId: string, chatMessageDto: ChatMessageDto): Promise<{ response: string }> {
-    // In production, would use OpenAI or similar
+    // Todo: In production, would use OpenAI or similar
     const responses = [
       'Based on the symptoms you described, it could be a fungal infection. I recommend consulting a crop doctor.',
       'For best results, plant maize during the rainy season with proper spacing of 75cm between rows.',

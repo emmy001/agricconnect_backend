@@ -162,11 +162,21 @@ export class ProfessionalsService {
     return this.professionalRepository.save(professional);
   }
 
+  // async updateLocation(id: string, location: { latitude: number; longitude: number; address?: string }): Promise<Professional> {
+  //   const professional = await this.findById(id);
+  //   professional.location = location;
+  //   return this.professionalRepository.save(professional);
+  // }
+
   async updateLocation(id: string, location: { latitude: number; longitude: number; address?: string }): Promise<Professional> {
-    const professional = await this.findById(id);
-    professional.location = location;
-    return this.professionalRepository.save(professional);
-  }
+  const professional = await this.findById(id);
+  professional.location = {
+    latitude: location.latitude,
+    longitude: location.longitude,
+    address: location.address ?? '',
+  };
+  return this.professionalRepository.save(professional);
+}
 
   async setWorkingHours(id: string, workingHours: any[]): Promise<Professional> {
     const professional = await this.findById(id);
@@ -229,7 +239,7 @@ export class ProfessionalsService {
   }
 
   async getEarnings(id: string, period?: string): Promise<any> {
-    // Implementation depends on bookings and payments
+    // Todo:Implementation depends on bookings and payments
     return {
       today: 2500,
       week: 12500,

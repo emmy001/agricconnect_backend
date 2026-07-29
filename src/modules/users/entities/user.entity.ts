@@ -101,4 +101,8 @@ export class User {
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Device[];
+
+  @ApiProperty()
+@Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+walletBalance: number;
 }

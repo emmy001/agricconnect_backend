@@ -86,7 +86,7 @@ export class WalletService {
 
     // Process payment based on method
     // This would integrate with payment gateway
-    // For now, simulate success
+    // Todo: For now, simulate success
 
     // Create transaction
     const transaction = this.transactionRepository.create({

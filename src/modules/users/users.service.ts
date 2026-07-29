@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 import { User, UserStatus } from './entities/user.entity';
@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findAll(params: { page: number; limit: number; role?: string; status?: string }): Promise<{ users: User[]; total: number }> {
     const { page, limit, role, status } = params;
@@ -100,6 +100,45 @@ export class UsersService {
   async unblock(id: string): Promise<User> {
     const user = await this.findById(id);
     user.status = UserStatus.ACTIVE;
+    return this.userRepository.save(user);
+  }
+
+  async findByIds(ids: string[]): Promise<User[]> {
+    return this.userRepository.findBy({ id: In(ids) });
+  }
+
+  async updateRating(userId: string, newRating?: number): Promise<User> {
+    const user = await this.findById(userId);
+
+    if (newRating !== undefined) {
+      const totalScore = user.rating * user.totalReviews + newRating;
+      user.totalReviews += 1;
+      user.rating = totalScore / user.totalReviews;
+      await this.userRepository.save(user);
+    }
+    // NOTE: called with no rating value from bookings.service.ts today.
+    // Wire the actual review score through once reviews are available there.
+
+    return user;
+  }
+
+  async getWalletBalance(userId: string): Promise<number> {
+    const user = await this.findById(userId);
+    return Number(user.walletBalance);
+  }
+
+  async deductWalletBalance(userId: string, amount: number): Promise<User> {
+    const user = await this.findById(userId);
+    if (Number(user.walletBalance) < amount) {
+      throw new BadRequestException('Insufficient wallet balance');
+    }
+    user.walletBalance = Number(user.walletBalance) - amount;
+    return this.userRepository.save(user);
+  }
+
+  async addWalletBalance(userId: string, amount: number): Promise<User> {
+    const user = await this.findById(userId);
+    user.walletBalance = Number(user.walletBalance) + amount;
     return this.userRepository.save(user);
   }
 }
