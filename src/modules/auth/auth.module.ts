@@ -37,6 +37,6 @@ import { UsersModule } from '../users/users.module';
     GoogleStrategy,
     AppleStrategy,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule, TypeOrmModule],
 })
 export class AuthModule {}

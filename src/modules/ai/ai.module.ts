@@ -14,6 +14,6 @@ import { UsersModule } from '../users/users.module';
   ],
   controllers: [AIController],
   providers: [AIService],
-  exports: [AIService],
+  exports: [AIService, TypeOrmModule],
 })
 export class AIModule {}

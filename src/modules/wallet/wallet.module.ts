@@ -15,6 +15,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   ],
   controllers: [WalletController],
   providers: [WalletService],
-  exports: [WalletService],
+  exports: [WalletService, TypeOrmModule],
 })
 export class WalletModule {}

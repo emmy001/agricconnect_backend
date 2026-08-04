@@ -22,6 +22,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   ],
   controllers: [CooperativeController],
   providers: [CooperativeService],
-  exports: [CooperativeService],
+  exports: [CooperativeService, TypeOrmModule],
 })
 export class CooperativeModule {}

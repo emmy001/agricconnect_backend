@@ -17,6 +17,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   ],
   controllers: [ProfessionalsController],
   providers: [ProfessionalsService],
-  exports: [ProfessionalsService],
+  exports: [ProfessionalsService, TypeOrmModule],
 })
 export class ProfessionalsModule {}

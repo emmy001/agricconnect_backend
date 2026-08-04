@@ -30,6 +30,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   ],
   controllers: [MarketplaceController],
   providers: [MarketplaceService],
-  exports: [MarketplaceService],
+  exports: [MarketplaceService, TypeOrmModule],
 })
 export class MarketplaceModule {}

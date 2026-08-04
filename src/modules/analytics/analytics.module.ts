@@ -16,6 +16,6 @@ import { FarmsModule } from '../farms/farms.module';
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
-  exports: [AnalyticsService],
+  exports: [AnalyticsService, TypeOrmModule],
 })
 export class AnalyticsModule {}

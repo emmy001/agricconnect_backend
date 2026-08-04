@@ -19,6 +19,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   ],
   controllers: [CommunityController],
   providers: [CommunityService],
-  exports: [CommunityService],
+  exports: [CommunityService, TypeOrmModule],
 })
 export class CommunityModule {}
