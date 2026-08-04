@@ -29,6 +29,7 @@ import { CommunityModule } from './modules/community/community.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { seconds } from '@nestjs/throttler';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -117,6 +118,7 @@ import { seconds } from '@nestjs/throttler';
     CommunityModule,
     AnalyticsModule,
     AdminModule,
+    SharedModule,
   ],
 })
 export class AppModule {
