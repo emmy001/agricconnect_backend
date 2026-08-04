@@ -1,3 +1,4 @@
+// bookings.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookingsController } from './bookings.controller';
@@ -16,6 +17,6 @@ import { UsersModule } from '../users/users.module';
   ],
   controllers: [BookingsController],
   providers: [BookingsService],
-  exports: [BookingsService],
+  exports: [BookingsService, TypeOrmModule],
 })
 export class BookingsModule {}

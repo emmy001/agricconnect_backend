@@ -1,3 +1,4 @@
+// farms.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FarmsController } from './farms.controller';
@@ -22,6 +23,6 @@ import { Vaccination } from './entities/vaccination.entity';
   ],
   controllers: [FarmsController],
   providers: [FarmsService],
-  exports: [FarmsService],
+  exports: [FarmsService, TypeOrmModule],
 })
 export class FarmsModule {}
