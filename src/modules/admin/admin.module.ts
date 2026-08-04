@@ -20,6 +20,6 @@ import { AnalyticsModule } from '../analytics/analytics.module';
   ],
   controllers: [AdminController],
   providers: [AdminService],
-  exports: [AdminService],
+  exports: [AdminService, TypeOrmModule],
 })
 export class AdminModule {}
