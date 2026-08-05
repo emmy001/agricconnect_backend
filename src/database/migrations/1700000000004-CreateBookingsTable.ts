@@ -4,48 +4,58 @@ import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } f
 export class CreateBookingsTable1700000000004 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         // First, create the enum types for the bookings table
+        // PostgreSQL doesn't support IF NOT EXISTS with CREATE TYPE
+        // We need to use DO blocks or check existence
         await queryRunner.query(`
-            CREATE TYPE IF NOT EXISTS booking_category_enum AS ENUM (
-                'veterinarian',
-                'crop_doctor',
-                'agronomist',
-                'artificial_insemination',
-                'livestock_vaccination',
-                'pest_control',
-                'farm_equipment_repair',
-                'soil_testing',
-                'drone_spraying',
-                'irrigation_installation',
-                'greenhouse_experts',
-                'poultry',
-                'pig_farming',
-                'dairy_farming',
-                'fish_farming',
-                'bee_keeping',
-                'farm_labour',
-                'land_preparation',
-                'tractor_hire',
-                'seed_consultation',
-                'fertilizer_consultation',
-                'harvesting',
-                'transport',
-                'storage',
-                'insurance',
-                'financial_services'
-            );
+            DO $$ BEGIN
+                CREATE TYPE booking_category_enum AS ENUM (
+                    'veterinarian',
+                    'crop_doctor',
+                    'agronomist',
+                    'artificial_insemination',
+                    'livestock_vaccination',
+                    'pest_control',
+                    'farm_equipment_repair',
+                    'soil_testing',
+                    'drone_spraying',
+                    'irrigation_installation',
+                    'greenhouse_experts',
+                    'poultry',
+                    'pig_farming',
+                    'dairy_farming',
+                    'fish_farming',
+                    'bee_keeping',
+                    'farm_labour',
+                    'land_preparation',
+                    'tractor_hire',
+                    'seed_consultation',
+                    'fertilizer_consultation',
+                    'harvesting',
+                    'transport',
+                    'storage',
+                    'insurance',
+                    'financial_services'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         await queryRunner.query(`
-            CREATE TYPE IF NOT EXISTS booking_status_enum AS ENUM (
-                'pending',
-                'accepted',
-                'en_route',
-                'arrived',
-                'in_progress',
-                'completed',
-                'cancelled',
-                'expired'
-            );
+            DO $$ BEGIN
+                CREATE TYPE booking_status_enum AS ENUM (
+                    'pending',
+                    'accepted',
+                    'en_route',
+                    'arrived',
+                    'in_progress',
+                    'completed',
+                    'cancelled',
+                    'expired'
+                );
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
         `);
 
         await queryRunner.createTable(
