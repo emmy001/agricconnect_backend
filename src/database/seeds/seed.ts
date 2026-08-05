@@ -20,8 +20,6 @@ export const seed = async (dataSource: DataSource) => {
     const admin = userRepository.create({
       email: 'admin@agriconnect.com',
       password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'AgriConnect',
       phoneNumber: '+254700000000',
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
@@ -44,8 +42,7 @@ export const seed = async (dataSource: DataSource) => {
     const farmer = userRepository.create({
       email: 'farmer@example.com',
       password: hashedPassword,
-      firstName: 'John',
-      lastName: 'Farmer',
+      username: 'john_farmer',
       phoneNumber: '+254712345678',
       role: UserRole.FARMER,
       status: UserStatus.ACTIVE,
@@ -68,8 +65,7 @@ export const seed = async (dataSource: DataSource) => {
     const professional = userRepository.create({
       email: 'professional@example.com',
       password: hashedPassword,
-      firstName: 'Dr. Jane',
-      lastName: 'Mwangi',
+      username: 'dr_jane_mwangi',
       phoneNumber: '+254798765432',
       role: UserRole.PROFESSIONAL,
       status: UserStatus.ACTIVE,

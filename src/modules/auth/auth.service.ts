@@ -70,8 +70,6 @@ export class AuthService {
     const user = this.userRepository.create({
       email: registerDto.email,
       password: hashedPassword,
-      firstName: registerDto.firstName,
-      lastName: registerDto.lastName,
       phoneNumber: registerDto.phoneNumber,
       role: registerDto.role || UserRole.FARMER,
       status: UserStatus.ACTIVE,
@@ -186,7 +184,7 @@ export class AuthService {
     // Store in Redis with 1 hour expiry
     // await this.cacheService.set(`reset:${resetToken}`, user.id, 3600);
 
-    // Send reset email
+    // //Send reset email
     // await this.emailService.sendPasswordResetEmail(user.email, resetToken);
 
     return { success: true };

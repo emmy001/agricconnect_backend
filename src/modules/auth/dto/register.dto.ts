@@ -3,14 +3,6 @@ import { IsEmail, IsNotEmpty, IsOptional, MinLength, IsEnum } from 'class-valida
 import { UserRole } from '../../users/entities/user.entity';
 
 export class RegisterDto {
-  @ApiProperty({ example: 'John' })
-  @IsNotEmpty()
-  firstName: string;
-
-  @ApiProperty({ example: 'Doe' })
-  @IsNotEmpty()
-  lastName: string;
-
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
   @IsNotEmpty()
