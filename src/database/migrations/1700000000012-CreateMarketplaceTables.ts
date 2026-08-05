@@ -12,7 +12,7 @@ export class CreateMarketplaceTables1700000000012 implements MigrationInterface 
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'name',
@@ -49,7 +49,6 @@ export class CreateMarketplaceTables1700000000012 implements MigrationInterface 
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -65,7 +64,7 @@ export class CreateMarketplaceTables1700000000012 implements MigrationInterface 
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'category_id',
@@ -150,7 +149,6 @@ export class CreateMarketplaceTables1700000000012 implements MigrationInterface 
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

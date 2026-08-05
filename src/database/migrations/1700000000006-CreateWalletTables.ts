@@ -12,7 +12,7 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -29,7 +29,7 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
           {
             name: 'currency',
             type: 'varchar',
-            default: "'KES'",
+            default: `'KES'`,
           },
           {
             name: 'total_earned',
@@ -73,7 +73,6 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -107,7 +106,7 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'wallet_id',
@@ -124,7 +123,7 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
             name: 'status',
             type: 'enum',
             enum: ['pending', 'completed', 'failed', 'cancelled'],
-            default: "'pending'",
+            default: `'pending'`,
           },
           {
             name: 'amount',
@@ -143,7 +142,7 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
           {
             name: 'currency',
             type: 'varchar',
-            default: "'KES'",
+            default: `'KES'`,
           },
           {
             name: 'description',
@@ -179,7 +178,6 @@ export class CreateWalletTables1700000000006 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

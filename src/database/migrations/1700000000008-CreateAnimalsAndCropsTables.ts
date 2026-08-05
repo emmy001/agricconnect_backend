@@ -12,7 +12,7 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farm_id',
@@ -82,7 +82,7 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'health_status',
             type: 'enum',
             enum: ['good', 'fair', 'poor', 'critical'],
-            default: "'good'",
+            default: `'good'`,
           },
           {
             name: 'notes',
@@ -103,7 +103,6 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -137,7 +136,7 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farm_id',
@@ -194,7 +193,7 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'stage',
             type: 'enum',
             enum: ['planting', 'germination', 'vegetative', 'flowering', 'harvested'],
-            default: "'planting'",
+            default: `'planting'`,
           },
           {
             name: 'notes',
@@ -215,7 +214,6 @@ export class CreateAnimalsAndCropsTables1700000000008 implements MigrationInterf
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

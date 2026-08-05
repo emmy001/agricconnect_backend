@@ -1,5 +1,5 @@
 // src/database/migrations/1700000000000-CreateUsersTable.ts
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
 
 export class CreateUsersTable1700000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -12,7 +12,7 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'email',
@@ -54,13 +54,13 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
             name: 'role',
             type: 'enum',
             enum: ['farmer', 'professional', 'admin'],
-            default: "'farmer'",
+            default: `'farmer'`,
           },
           {
             name: 'status',
             type: 'enum',
             enum: ['active', 'inactive', 'pending', 'blocked'],
-            default: "'active'",
+            default: `'active'`,
           },
           {
             name: 'is_verified',
@@ -88,7 +88,6 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'last_login',
@@ -142,7 +141,7 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -193,7 +192,6 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

@@ -11,7 +11,7 @@ export class CreatePaymentsTable1700000000005 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -33,7 +33,7 @@ export class CreatePaymentsTable1700000000005 implements MigrationInterface {
           {
             name: 'currency',
             type: 'varchar',
-            default: "'KES'",
+            default: `'KES'`,
           },
           {
             name: 'method',
@@ -45,7 +45,7 @@ export class CreatePaymentsTable1700000000005 implements MigrationInterface {
             name: 'status',
             type: 'enum',
             enum: ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'],
-            default: "'pending'",
+            default: `'pending'`,
           },
           {
             name: 'reference',
@@ -111,7 +111,6 @@ export class CreatePaymentsTable1700000000005 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

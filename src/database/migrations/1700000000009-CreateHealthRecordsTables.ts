@@ -12,7 +12,7 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'animal_id',
@@ -80,7 +80,7 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
           {
             name: 'status',
             type: 'varchar',
-            default: "'Completed'",
+            default: `'Completed'`,
           },
           {
             name: 'metadata',
@@ -96,7 +96,6 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -130,7 +129,7 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'animal_id',
@@ -176,7 +175,7 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
             name: 'status',
             type: 'enum',
             enum: ['pending', 'administered', 'overdue', 'cancelled'],
-            default: "'pending'",
+            default: `'pending'`,
           },
           {
             name: 'notes',
@@ -197,7 +196,6 @@ export class CreateHealthRecordsTables1700000000009 implements MigrationInterfac
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

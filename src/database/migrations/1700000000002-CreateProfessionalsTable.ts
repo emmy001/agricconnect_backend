@@ -1,17 +1,17 @@
-// src/database/migrations/1700000000001-CreateDevicesTable.ts
+// src/database/migrations/1700000000002-CreateProfessionalsTable.ts
 import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
 
-export class CreateDevicesTable1700000000001 implements MigrationInterface {
+export class CreateProfessionalsTable1700000000002 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'devices',
+        name: 'professionals',
         columns: [
           {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -19,39 +19,100 @@ export class CreateDevicesTable1700000000001 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'device_id',
-            type: 'varchar',
-            isUnique: true,
-            isNullable: false,
+            name: 'bio',
+            type: 'text',
+            isNullable: true,
           },
           {
-            name: 'device_name',
-            type: 'varchar',
-            isNullable: false,
-          },
-          {
-            name: 'device_model',
-            type: 'varchar',
-            isNullable: false,
-          },
-          {
-            name: 'os_version',
-            type: 'varchar',
-            isNullable: false,
-          },
-          {
-            name: 'push_token',
+            name: 'specialty',
             type: 'varchar',
             isNullable: true,
           },
           {
-            name: 'is_active',
-            type: 'boolean',
-            default: true,
+            name: 'experience_years',
+            type: 'decimal',
+            precision: 4,
+            scale: 2,
+            default: 0,
           },
           {
-            name: 'last_active',
+            name: 'response_time',
+            type: 'int',
+            default: 0,
+          },
+          {
+            name: 'completion_rate',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            default: 0,
+          },
+          {
+            name: 'acceptance_rate',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            default: 0,
+          },
+          {
+            name: 'jobs_completed',
+            type: 'int',
+            default: 0,
+          },
+          {
+            name: 'is_available',
+            type: 'boolean',
+            default: false,
+          },
+          {
+            name: 'has_vehicle',
+            type: 'boolean',
+            default: false,
+          },
+          {
+            name: 'pricing',
+            type: 'jsonb',
+            isNullable: true,
+          },
+          {
+            name: 'location',
+            type: 'jsonb',
+            isNullable: true,
+          },
+          {
+            name: 'skills',
+            type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'languages',
+            type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'equipment',
+            type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'verification_status',
+            type: 'enum',
+            enum: ['pending', 'approved', 'rejected', 'suspended'],
+            default: `'pending'`,
+          },
+          {
+            name: 'verification_notes',
+            type: 'text',
+            isNullable: true,
+          },
+          {
+            name: 'verified_at',
             type: 'timestamp',
+            isNullable: true,
+          },
+          {
+            name: 'verified_by',
+            type: 'uuid',
             isNullable: true,
           },
           {
@@ -63,7 +124,6 @@ export class CreateDevicesTable1700000000001 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -71,23 +131,23 @@ export class CreateDevicesTable1700000000001 implements MigrationInterface {
     );
 
     await queryRunner.createIndex(
-      'devices',
+      'professionals',
       new TableIndex({
-        name: 'idx_devices_user_id',
+        name: 'idx_professionals_user_id',
         columnNames: ['user_id'],
       }),
     );
 
     await queryRunner.createIndex(
-      'devices',
+      'professionals',
       new TableIndex({
-        name: 'idx_devices_device_id',
-        columnNames: ['device_id'],
+        name: 'idx_professionals_verification_status',
+        columnNames: ['verification_status'],
       }),
     );
 
     await queryRunner.createForeignKey(
-      'devices',
+      'professionals',
       new TableForeignKey({
         columnNames: ['user_id'],
         referencedColumnNames: ['id'],
@@ -98,6 +158,6 @@ export class CreateDevicesTable1700000000001 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('devices');
+    await queryRunner.dropTable('professionals');
   }
 }

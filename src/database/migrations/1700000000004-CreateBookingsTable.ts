@@ -11,7 +11,7 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farmer_id',
@@ -65,7 +65,7 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
             name: 'status',
             type: 'enum',
             enum: ['pending', 'accepted', 'en_route', 'arrived', 'in_progress', 'completed', 'cancelled', 'expired'],
-            default: "'pending'",
+            default: `'pending'`,
           },
           {
             name: 'requested_at',
@@ -162,7 +162,6 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

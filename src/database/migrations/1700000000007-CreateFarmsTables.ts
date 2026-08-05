@@ -12,7 +12,7 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farmer_id',
@@ -33,7 +33,7 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
             name: 'type',
             type: 'enum',
             enum: ['crops', 'livestock', 'mixed', 'dairy', 'poultry'],
-            default: "'mixed'",
+            default: `'mixed'`,
           },
           {
             name: 'size',
@@ -66,7 +66,6 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -100,7 +99,7 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farm_id',
@@ -122,7 +121,7 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
           {
             name: 'type',
             type: 'varchar',
-            default: "'polygon'",
+            default: `'polygon'`,
           },
           {
             name: 'metadata',
@@ -138,7 +137,6 @@ export class CreateFarmsTables1700000000007 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

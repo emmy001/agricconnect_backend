@@ -12,7 +12,7 @@ export class CreateChatTables1700000000010 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'farmer_id',
@@ -53,7 +53,6 @@ export class CreateChatTables1700000000010 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -98,7 +97,7 @@ export class CreateChatTables1700000000010 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'chat_room_id',
@@ -119,7 +118,7 @@ export class CreateChatTables1700000000010 implements MigrationInterface {
             name: 'type',
             type: 'enum',
             enum: ['text', 'image', 'voice', 'file', 'location'],
-            default: "'text'",
+            default: `'text'`,
           },
           {
             name: 'is_read',
@@ -160,7 +159,6 @@ export class CreateChatTables1700000000010 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

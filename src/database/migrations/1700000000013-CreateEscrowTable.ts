@@ -11,7 +11,7 @@ export class CreateEscrowTable1700000000013 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'payment_id',
@@ -38,13 +38,13 @@ export class CreateEscrowTable1700000000013 implements MigrationInterface {
           {
             name: 'currency',
             type: 'varchar',
-            default: "'KES'",
+            default: `'KES'`,
           },
           {
             name: 'status',
             type: 'enum',
             enum: ['holding', 'released', 'refunded', 'disputed'],
-            default: "'holding'",
+            default: `'holding'`,
           },
           {
             name: 'release_date',
@@ -80,7 +80,6 @@ export class CreateEscrowTable1700000000013 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

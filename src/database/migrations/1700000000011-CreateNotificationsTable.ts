@@ -11,7 +11,7 @@ export class CreateNotificationsTable1700000000011 implements MigrationInterface
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -38,7 +38,7 @@ export class CreateNotificationsTable1700000000011 implements MigrationInterface
             name: 'priority',
             type: 'enum',
             enum: ['low', 'medium', 'high', 'urgent'],
-            default: "'medium'",
+            default: `'medium'`,
           },
           {
             name: 'is_read',
@@ -84,7 +84,6 @@ export class CreateNotificationsTable1700000000011 implements MigrationInterface
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),

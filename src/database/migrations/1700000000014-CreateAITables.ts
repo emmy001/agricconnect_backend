@@ -12,7 +12,7 @@ export class CreateAITables1700000000014 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -40,7 +40,7 @@ export class CreateAITables1700000000014 implements MigrationInterface {
             name: 'severity',
             type: 'enum',
             enum: ['low', 'medium', 'high', 'critical'],
-            default: "'medium'",
+            default: `'medium'`,
           },
           {
             name: 'image_url',
@@ -76,7 +76,6 @@ export class CreateAITables1700000000014 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -110,7 +109,7 @@ export class CreateAITables1700000000014 implements MigrationInterface {
             name: 'id',
             type: 'uuid',
             isPrimary: true,
-            default: 'gen_random_uuid()',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'user_id',
@@ -165,7 +164,6 @@ export class CreateAITables1700000000014 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
