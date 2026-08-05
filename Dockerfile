@@ -29,6 +29,8 @@ RUN npm ci --omit=dev
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
+# After the build step, copy templates
+COPY --from=builder /app/src/modules/notifications/templates /app/dist/modules/notifications/templates
 
 # Copy environment files
 COPY .env.example .env
