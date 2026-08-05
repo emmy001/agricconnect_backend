@@ -30,6 +30,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { seconds } from '@nestjs/throttler';
 import { SharedModule } from './shared/shared.module';
+// src/app.module.ts
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -50,6 +52,8 @@ import { SharedModule } from './shared/shared.module';
       }),
       inject: [ConfigService],
     }),
+
+    DatabaseModule,
     
     // TypeOrmModule.forRootAsync({
     //   imports: [ConfigModule],
