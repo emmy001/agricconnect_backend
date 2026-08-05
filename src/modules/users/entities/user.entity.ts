@@ -45,10 +45,6 @@ export class User {
   password: string;
 
   @ApiProperty()
-  @Column()
-  username: string;
-
-  @ApiProperty()
   @Column({ nullable: true })
   profileImage: string;
 
