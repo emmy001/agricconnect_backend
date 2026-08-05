@@ -1,6 +1,8 @@
+// database.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -13,9 +15,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get('DATABASE_USER', 'agriconnect'),
         password: configService.get('DATABASE_PASSWORD', 'agriconnect2024'),
         database: configService.get('DATABASE_NAME', 'agriconnect'),
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        entities: [path.join(process.cwd(), 'dist/**/*.entity.js')],
         synchronize: configService.get('NODE_ENV') !== 'production',
-        migrations: [__dirname + '/migrations/*{.ts,.js}'],
+        migrations: [path.join(process.cwd(), 'dist/database/migrations/*.js')],
         migrationsRun: true,
         logging: configService.get('NODE_ENV') === 'development',
       }),

@@ -51,23 +51,23 @@ import { SharedModule } from './shared/shared.module';
       inject: [ConfigService],
     }),
     
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.database'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: process.env.NODE_ENV !== 'production',
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        migrationsRun: true,
-        logging: process.env.NODE_ENV === 'development',
-      }),
-      inject: [ConfigService],
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: (configService: ConfigService) => ({
+    //     type: 'postgres',
+    //     host: configService.get('database.host'),
+    //     port: configService.get('database.port'),
+    //     username: configService.get('database.username'),
+    //     password: configService.get('database.password'),
+    //     database: configService.get('database.database'),
+    //     entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    //     synchronize: process.env.NODE_ENV !== 'production',
+    //     migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+    //     migrationsRun: true,
+    //     logging: process.env.NODE_ENV === 'development',
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     
     BullModule.forRootAsync({
       imports: [ConfigModule],
