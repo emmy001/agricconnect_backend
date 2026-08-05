@@ -15,9 +15,9 @@ import * as path from 'path';
         username: configService.get('DATABASE_USER', 'agriconnect'),
         password: configService.get('DATABASE_PASSWORD', 'agriconnect2024'),
         database: configService.get('DATABASE_NAME', 'agriconnect'),
-        entities: [path.join(process.cwd(), 'dist/**/*.entity.js')],
+        autoLoadEntities: true, // <-- replaces the broken glob
         synchronize: configService.get('NODE_ENV') !== 'production',
-        migrations: [path.join(process.cwd(), 'dist/database/migrations/*.js')],
+        migrations: [path.join(__dirname, '../database/migrations/*{.ts,.js}')],
         migrationsRun: true,
         logging: configService.get('NODE_ENV') === 'development',
       }),
