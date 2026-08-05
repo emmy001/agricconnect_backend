@@ -1,12 +1,20 @@
+// src/modules/auth/dto/verify-otp.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class VerifyOTPDto {
   @ApiProperty()
   @IsNotEmpty()
+  @IsString()
   verificationId: string;
 
-  @ApiProperty({ example: '123456' })
+  @ApiProperty()
   @IsNotEmpty()
+  @IsString()
   otp: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
 }
