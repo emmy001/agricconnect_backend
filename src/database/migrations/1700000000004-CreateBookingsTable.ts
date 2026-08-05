@@ -3,6 +3,51 @@ import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } f
 
 export class CreateBookingsTable1700000000004 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // First, create the enum types for the bookings table
+        await queryRunner.query(`
+            CREATE TYPE IF NOT EXISTS booking_category_enum AS ENUM (
+                'veterinarian',
+                'crop_doctor',
+                'agronomist',
+                'artificial_insemination',
+                'livestock_vaccination',
+                'pest_control',
+                'farm_equipment_repair',
+                'soil_testing',
+                'drone_spraying',
+                'irrigation_installation',
+                'greenhouse_experts',
+                'poultry',
+                'pig_farming',
+                'dairy_farming',
+                'fish_farming',
+                'bee_keeping',
+                'farm_labour',
+                'land_preparation',
+                'tractor_hire',
+                'seed_consultation',
+                'fertilizer_consultation',
+                'harvesting',
+                'transport',
+                'storage',
+                'insurance',
+                'financial_services'
+            );
+        `);
+
+        await queryRunner.query(`
+            CREATE TYPE IF NOT EXISTS booking_status_enum AS ENUM (
+                'pending',
+                'accepted',
+                'en_route',
+                'arrived',
+                'in_progress',
+                'completed',
+                'cancelled',
+                'expired'
+            );
+        `);
+
         await queryRunner.createTable(
             new Table({
                 name: 'bookings',
@@ -30,41 +75,12 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
                     },
                     {
                         name: 'category',
-                        type: 'enum',
-                        enum: [
-                            'veterinarian',
-                            'crop_doctor',
-                            'agronomist',
-                            'artificial_insemination',
-                            'livestock_vaccination',
-                            'pest_control',
-                            'farm_equipment_repair',
-                            'soil_testing',
-                            'drone_spraying',
-                            'irrigation_installation',
-                            'greenhouse_experts',
-                            'poultry',
-                            'pig_farming',
-                            'dairy_farming',
-                            'fish_farming',
-                            'bee_keeping',
-                            'farm_labour',
-                            'land_preparation',
-                            'tractor_hire',
-                            'seed_consultation',
-                            'fertilizer_consultation',
-                            'harvesting',
-                            'transport',
-                            'storage',
-                            'insurance',
-                            'financial_services',
-                        ],
+                        type: 'booking_category_enum',
                         isNullable: false,
                     },
                     {
                         name: 'status',
-                        type: 'enum',
-                        enum: ['pending', 'accepted', 'en_route', 'arrived', 'in_progress', 'completed', 'cancelled', 'expired'],
+                        type: 'booking_status_enum',
                         default: `'pending'`,
                     },
                     {
@@ -156,7 +172,7 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
                     {
                         name: 'metadata',
                         type: 'jsonb',
-                        default: () => "'{}'::jsonb",
+                        default: `'{}'::jsonb`,
                     },
                     {
                         name: 'updated_at',
@@ -223,5 +239,9 @@ export class CreateBookingsTable1700000000004 implements MigrationInterface {
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.dropTable('bookings');
+        
+        // Drop the enum types
+        await queryRunner.query(`DROP TYPE IF EXISTS booking_category_enum;`);
+        await queryRunner.query(`DROP TYPE IF EXISTS booking_status_enum;`);
     }
 }
