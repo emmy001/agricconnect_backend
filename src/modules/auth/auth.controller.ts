@@ -21,13 +21,22 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // @Post('login')
+  // @ApiOperation({ summary: 'User login' })
+  // @ApiResponse({ status: 200, description: 'Login successful' })
+  // @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  // async login(@Body() loginDto: LoginDto) {
+  //   return this.authService.login(loginDto);
+  // }
+
   @Post('login')
-  @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
-  }
+@HttpCode(HttpStatus.OK)
+@ApiOperation({ summary: 'User login' })
+@ApiResponse({ status: 200, description: 'Login successful' })
+@ApiResponse({ status: 401, description: 'Invalid credentials' })
+async login(@Body() loginDto: LoginDto) {
+  return this.authService.login(loginDto);
+}
 
   @Post('register')
   @ApiOperation({ summary: 'User registration' })
