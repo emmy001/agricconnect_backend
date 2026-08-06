@@ -104,6 +104,7 @@ export class AuthService {
     // Create user
     const user = this.userRepository.create({
       email: registerDto.email,
+      phoneNumber: registerDto.phoneNumber,
       password: hashedPassword,
       role: registerDto.role || UserRole.FARMER,
       status: UserStatus.ACTIVE,
