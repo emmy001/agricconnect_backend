@@ -12,7 +12,7 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (nest-cli.json asset config copies *.html/*.hbs/*.json into dist)
 RUN npm run build
 
 # Production image
@@ -26,16 +26,9 @@ COPY package*.json ./
 # Install production dependencies only
 RUN npm ci --omit=dev
 
-# Copy built application from builder
+# Copy built application (already includes templates via nest-cli.json assets config)
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-
-
-# Copy assets (templates) from builder
-COPY --from=builder /app/dist/modules/notifications/templates ./dist/modules/notifications/templates
-
-# Or copy from source if needed
-COPY --from=builder /app/src/modules/notifications/templates ./dist/modules/notifications/templates
 
 # Copy environment files
 COPY .env.example .env

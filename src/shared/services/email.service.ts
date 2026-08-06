@@ -23,7 +23,15 @@ export class EmailService {
   }
 
   private async renderTemplate(templateName: string, data: any): Promise<string> {
-    const templatePath = path.join(__dirname, '..', 'notifications', 'templates', 'email', `${templateName}.html`);
+    // __dirname at runtime resolves to dist/shared/services.
+    // Templates actually live under dist/modules/notifications/templates/email.
+    // ".." -> dist/shared, ".." -> dist, then into modules/notifications/templates/email.
+    const templatePath = path.join(
+      __dirname,
+      '..', '..',
+      'modules', 'notifications', 'templates', 'email',
+      `${templateName}.html`,
+    );
     const template = fs.readFileSync(templatePath, 'utf-8');
     const compiled = handlebars.compile(template);
     return compiled(data);
